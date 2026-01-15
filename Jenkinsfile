@@ -1,62 +1,58 @@
 pipeline {
-agent any 
-     environment {
-        PYTHON_ENV = 'venv'  // virtual environment folder
+    agent { label 'windows-python-agent' }
+
+    environment {
+        // Chemin complet vers Python 3.14.2
+        PYTHON = 'C:\\Users\\soumaya\\AppData\\Local\\Programs\\Python\\Python314\\python.exe'
+        // Dossier pour le venv
+        PYTHON_ENV = 'venv'
+        // Dossier pour les rapports
+        REPORTS_DIR = 'reports'
     }
 
-  
-
     stages {
+        stage('Check Python') {
+            steps {
+                bat """
+                "%PYTHON%" --version
+                where python
+                """
+            }
+        }
+
         stage('Setup Python & Dependencies') {
             steps {
-                script {
-                    // Check if Python is installed
-                    bat '''
-                    python --version >nul 2>&1
-                    if errorlevel 1 (
-                        echo Python not found, please install Python3 on this agent!
-                        exit /b 1
-                    ) else (
-                        echo Python already installed
-                    )
-                    '''
-
-                    // Create virtual environment and install dependencies
-                    bat """
-                    python -m venv %PYTHON_ENV%
-                    call %PYTHON_ENV%\\Scripts\\activate.bat
-                    pip install --upgrade pip
-                    pip install selenium pytest pytest-html
-                    """
-                }
+                bat """
+                "%PYTHON%" -m venv %PYTHON_ENV%
+                call %PYTHON_ENV%\\Scripts\\activate.bat
+                pip install --upgrade pip
+                pip install selenium pytest pytest-html webdriver-manager
+                """
             }
         }
 
         stage('Run Selenium Tests') {
             steps {
-                script {
-                    // Activate venv and run tests
-                    bat """
-                    call %PYTHON_ENV%\\Scripts\\activate.bat
-                    pytest tests/ --html=reports\\report.html --self-contained-html
-                    """
-                }
+                bat """
+                call %PYTHON_ENV%\\Scripts\\activate.bat
+                mkdir %REPORTS_DIR%
+                "%PYTHON%" main_test.py
+                """
             }
         }
 
         stage('Archive Reports') {
             steps {
-                archiveArtifacts artifacts: 'reports\\report.html', fingerprint: true
+                archiveArtifacts artifacts: 'reports\\**', fingerprint: true
             }
         }
     }
 
     post {
         always {
-            echo "Cleaning up virtual environment"
-            bat 'rmdir /s /q %PYTHON_ENV%'
+            bat """
+            if exist %PYTHON_ENV% rmdir /s /q %PYTHON_ENV%
+            """
         }
     }
 }
-
-

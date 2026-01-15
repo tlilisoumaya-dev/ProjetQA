@@ -6,6 +6,27 @@
     "password": "secret_sauce"
   },
 
+  "login_invalid": {
+    "username": "invalid_user",
+    "password": "wrong_password"
+  },
+
+  "login_no_username": {
+    "username": "",
+    "password": "secret_sauce"
+  },
+
+  "login_no_password": {
+    "username": "standard_user",
+    "password": ""
+  },
+
+  "error_messages": {
+    "invalid": "Epic sadface: Username and password do not match any user in this service",
+    "username_required": "Epic sadface: Username is required",
+    "password_required": "Epic sadface: Password is required"
+  },
+
   "products": [
     {
       "name": "Sauce Labs Backpack",
