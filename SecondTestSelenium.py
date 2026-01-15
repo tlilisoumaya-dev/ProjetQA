@@ -65,7 +65,7 @@ def verify_all_products_present(driver, products):
     product_names = [p.text for p in product_elements]
     for product in products:
         assert product["name"] in product_names, f"Produit manquant: {product['name']}"
-    print("Tous les produits sont présents ✅")
+    print("Tous les produits sont présents")
 
 # -----------------------------
 # Vérifier qu'une image est visible
@@ -73,7 +73,7 @@ def verify_all_products_present(driver, products):
 def verify_image_visible(driver, product):
     img_elem = driver.find_element(By.CSS_SELECTOR, product["img_selector"])
     assert img_elem.is_displayed(), f"L'image pour {product['name']} n'est pas visible"
-    print(f"Image visible ✅ : {product['name']}")
+    print(f"Image visible : {product['name']}")
 
 # -----------------------------
 # Vérifier que le bouton "Add to cart" est présent
@@ -81,7 +81,7 @@ def verify_image_visible(driver, product):
 def verify_add_to_cart_button(driver, product):
     button_elem = driver.find_element(By.CSS_SELECTOR, product["button_selector"])
     assert button_elem.is_displayed(), f"Le bouton 'Add to cart' pour {product['name']} n'est pas visible"
-    print(f"Bouton 'Add to cart' présent ✅ : {product['name']}")
+    print(f"Bouton 'Add to cart' présent : {product['name']}")
 
 # -----------------------------
 # Vérifier que le nom du produit est cliquable
@@ -89,7 +89,7 @@ def verify_add_to_cart_button(driver, product):
 def verify_product_name_clickable(driver, product):
     name_elem = driver.find_element(By.CSS_SELECTOR, product["name_selector"])
     assert name_elem.is_displayed(), f"Le nom du produit {product['name']} n'est pas cliquable"
-    print(f"Nom du produit cliquable ✅ : {product['name']}")
+    print(f"Nom du produit cliquable : {product['name']}")
 
 # -----------------------------
 # 6️⃣ Retourner à la liste des produits
@@ -104,7 +104,7 @@ def return_to_products(driver):
 def verify_total_products(driver, expected_count):
     all_items = driver.find_elements(By.CLASS_NAME, "inventory_item")
     assert len(all_items) == expected_count, f"Nombre de produits incorrect: {len(all_items)}"
-    print(f"Nombre total de produits correct ✅ ({len(all_items)})")
+    print(f"Nombre total de produits correct ({len(all_items)})")
 
 # -----------------------------
 # Script principal

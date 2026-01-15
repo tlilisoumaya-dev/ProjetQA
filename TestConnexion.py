@@ -84,25 +84,25 @@ def main():
         # 1️⃣ Test utilisateur invalide
         login(driver, data["login_invalid"], url)
         assert get_error_message(driver) == data["error_messages"]["invalid"]
-        print("✅ Test utilisateur invalide OK")
+        print("Test utilisateur invalide OK")
         close_error(driver)
 
         # 2️⃣ Test username vide
         login(driver, data["login_no_username"], url)
         assert get_error_message(driver) == data["error_messages"]["username_required"]
-        print("✅ Test username requis OK")
+        print("Test username requis OK")
         close_error(driver)
 
         # 3️⃣ Test password vide
         login(driver, data["login_no_password"], url)
         assert get_error_message(driver) == data["error_messages"]["password_required"]
-        print("✅ Test password requis OK")
+        print("Test password requis OK")
         close_error(driver)
 
-        print("🎉 Tous les tests de connexion échouée ont réussi!")
+        print("Tous les tests de connexion échouée ont réussi!")
 
     except AssertionError as e:
-        print("❌ Test échoué :", e)
+        print("Test échoué :", e)
 
     finally:
         CloseChrome(driver)
