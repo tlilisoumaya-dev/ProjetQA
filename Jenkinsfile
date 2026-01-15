@@ -3,6 +3,7 @@ pipeline {
 
     stages {
 
+        // 🔹 Étape 1 : Installation des dépendances Python
         stage('Setup') {
             steps {
                 echo 'Installation des dépendances Python...'
@@ -14,35 +15,33 @@ pipeline {
             }
         }
 
+        // 🔹 Étape 2 : Lancement des tests et génération du rapport
         stage('Tests + Rapport HTML') {
             steps {
                 echo 'Exécution des tests et génération du rapport...'
                 bat '''
                 chcp 65001
-                mkdir reports
-                C:\\Users\\tlili\\AppData\\Local\\Programs\\Python\\Python314\\python.exe -m pytest ^
-                --html=reports/report.html --self-contained-html
+                mkdir reports 2>nul
+                mkdir screenshots 2>nul
+
+                C:\\Users\\tlili\\AppData\\Local\\Programs\\Python\\Python314\\python.exe -m pytest tests --html=reports/report.html --self-contained-html
                 '''
             }
         }
     }
 
+    // 🔹 Post-actions : publication du rapport HTML
     post {
         always {
-            echo 'Pipeline terminée'
+            echo '🔹 Publication du rapport HTML dans Jenkins...'
             publishHTML([
                 reportDir: 'reports',
                 reportFiles: 'report.html',
-                reportName: 'Rapport Tests Selenium'
+                reportName: 'Rapport Tests Selenium',
+                allowMissing: false,
+                alwaysLinkToLastBuild: true,
+                keepAll: true
             ])
-        }
-
-        success {
-            echo 'Tous les tests ont réussi'
-        }
-
-        failure {
-            echo 'Certains tests ont échoué'
         }
     }
 }
