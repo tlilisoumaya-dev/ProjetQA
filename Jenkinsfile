@@ -2,25 +2,27 @@ pipeline {
     agent any
 
     stages {
+
         stage('Setup') {
             steps {
-                echo '🔹 Installation des dépendances Python...'
-                bat 'C:\\Users\\tlili\\AppData\\Local\\Programs\\Python\\Python314\\python.exe -m pip install --upgrade pip'
-                bat 'C:\\Users\\tlili\\AppData\\Local\\Programs\\Python\\Python314\\python.exe -m pip install -r requirements.txt'
+                echo 'Installation des dépendances Python...'
+                bat '''
+                chcp 65001
+                C:\\Users\\tlili\\AppData\\Local\\Programs\\Python\\Python314\\python.exe -m pip install --upgrade pip
+                C:\\Users\\tlili\\AppData\\Local\\Programs\\Python\\Python314\\python.exe -m pip install -r requirements.txt
+                '''
             }
         }
 
-        stage('Test Login Echoué') {
+        stage('Tests + Rapport HTML') {
             steps {
-                echo '🔹 Exécution du test de connexion échouée...'
-                bat 'C:\\Users\\tlili\\AppData\\Local\\Programs\\Python\\Python314\\python.exe testConnexion.py'
-            }
-        }
-
-        stage('Test Produits') {
-            steps {
-                echo '🔹 Exécution du test des produits...'
-                bat 'C:\\Users\\tlili\\AppData\\Local\\Programs\\Python\\Python314\\python.exe SecondTestSelenium.py'
+                echo 'Exécution des tests et génération du rapport...'
+                bat '''
+                chcp 65001
+                mkdir reports
+                C:\\Users\\tlili\\AppData\\Local\\Programs\\Python\\Python314\\python.exe -m pytest ^
+                --html=reports/report.html --self-contained-html
+                '''
             }
         }
     }
@@ -28,10 +30,17 @@ pipeline {
     post {
         always {
             echo 'Pipeline terminée'
+            publishHTML([
+                reportDir: 'reports',
+                reportFiles: 'report.html',
+                reportName: 'Rapport Tests Selenium'
+            ])
         }
+
         success {
             echo 'Tous les tests ont réussi'
         }
+
         failure {
             echo 'Certains tests ont échoué'
         }
