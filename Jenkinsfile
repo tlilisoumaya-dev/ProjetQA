@@ -1,58 +1,39 @@
 pipeline {
-    agent { label 'windows-python-agent' }
-
-    environment {
-        // Chemin complet vers Python 3.14.2
-        PYTHON = 'C:\\Users\\soumaya\\AppData\\Local\\Programs\\Python\\Python314\\python.exe'
-        // Dossier pour le venv
-        PYTHON_ENV = 'venv'
-        // Dossier pour les rapports
-        REPORTS_DIR = 'reports'
-    }
+    agent any
 
     stages {
-        stage('Check Python') {
+        stage('Setup') {
             steps {
-                bat """
-                "%PYTHON%" --version
-                where python
-                """
+                echo '🔹 Installation des dépendances Python...'
+                bat 'python -m pip install --upgrade pip'
+                bat 'python -m pip install -r requirements.txt'
             }
         }
 
-        stage('Setup Python & Dependencies') {
+        stage('Test Login Echoué') {
             steps {
-                bat """
-                "%PYTHON%" -m venv %PYTHON_ENV%
-                call %PYTHON_ENV%\\Scripts\\activate.bat
-                pip install --upgrade pip
-                pip install selenium pytest pytest-html webdriver-manager
-                """
+                echo '🔹 Exécution du test de connexion échouée...'
+                bat 'python testConnexion.py'
             }
         }
 
-        stage('Run Selenium Tests') {
+        stage('Test Produits') {
             steps {
-                bat """
-                call %PYTHON_ENV%\\Scripts\\activate.bat
-                mkdir %REPORTS_DIR%
-                "%PYTHON%" main_test.py
-                """
-            }
-        }
-
-        stage('Archive Reports') {
-            steps {
-                archiveArtifacts artifacts: 'reports\\**', fingerprint: true
+                echo '🔹 Exécution du test des produits...'
+                bat 'python SecondTestSelenium.py'
             }
         }
     }
 
     post {
         always {
-            bat """
-            if exist %PYTHON_ENV% rmdir /s /q %PYTHON_ENV%
-            """
+            echo '🎉 Pipeline terminée'
+        }
+        success {
+            echo '✅ Tous les tests ont réussi'
+        }
+        failure {
+            echo '❌ Certains tests ont échoué'
         }
     }
 }
