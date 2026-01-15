@@ -5,8 +5,8 @@ pipeline {
         stage('Setup') {
             steps {
                 echo '🔹 Installation des dépendances Python...'
-                bat 'python -m pip install --upgrade pip'
-                bat 'python -m pip install -r requirements.txt'
+                bat 'C:\Users\tlili\AppData\Local\Programs\Python\Python314\python.exe -m pip install --upgrade pip'
+                bat 'C:\Users\tlili\AppData\Local\Programs\Python\Python314\python.exe -m pip install -r requirements.txt'
             }
         }
 
