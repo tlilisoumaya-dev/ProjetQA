@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        GIT_URL = 'https://github.com/tlilisoumaya-dev/ProjetQA' // Ton repo GitHub
-        GIT_BRANCH = 'main' // Branche cible
-        GIT_CREDENTIALS_ID = 'github-token' // Credentials Jenkins avec ton PAT GitHub
+        GIT_URL = 'https://github.com/tlilisoumaya-dev/ProjetQA' // ton repo GitHub
+        GIT_BRANCH = 'main' // branche cible
+        GIT_CREDENTIALS_ID = 'github-token' // tes identifiants Jenkins pour GitHub (PAT)
     }
 
     stages {
@@ -32,7 +32,7 @@ pipeline {
             }
         }
 
-        // 🔹 Étape 3 : Ajouter uniquement le fichier report.html dans Git et push
+        // 🔹 Étape 3 : Ajouter le rapport dans Git et push
         stage('Push Report to GitHub') {
             steps {
                 echo 'Mise à jour du fichier report/report.html sur GitHub...'
@@ -41,9 +41,10 @@ pipeline {
                     git config user.email "tlilisoumaya255@gmail.com"
                     git config user.name "tlilisoumaya-dev"
 
+                    git checkout -B ${env.GIT_BRANCH}   // crée ou force la branche main locale
                     git add report/report.html
                     git commit -m "Mise à jour du rapport de tests Selenium" || echo "Pas de changements à commit"
-                    git push https://${GIT_USER}:${GIT_PASS}@${env.GIT_URL.replace('https://','')} ${GIT_BRANCH}
+                    git push https://${GIT_USER}:${GIT_PASS}@${env.GIT_URL.replace('https://','')} ${env.GIT_BRANCH}
                     """
                 }
             }
@@ -55,8 +56,8 @@ pipeline {
         always {
             echo 'Publication du rapport HTML dans Jenkins...'
             publishHTML([
-                reportDir: 'report',          // le dossier existant
-                reportFiles: 'report.html',   // fichier à publier
+                reportDir: 'report',
+                reportFiles: 'report.html',
                 reportName: 'Rapport Tests Selenium',
                 allowMissing: false,
                 alwaysLinkToLastBuild: true,
