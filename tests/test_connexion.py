@@ -1,4 +1,5 @@
 import json
+import pytest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
@@ -16,35 +17,31 @@ with open("data.json", "r") as f:
 CHROME_PORTABLE_PATH = r'C:\chrome_Sources\chrome-win64\chrome.exe'
 CHROME_DRIVER_PATH = r'C:\chrome_Sources\chromedriver-win64\chromedriver.exe'
 
-
 # -----------------------------
-# Configuration du navigateur
+# Fixture pytest pour le driver
 # -----------------------------
-def OpenChrome(chromedriver_path, chrome_portable_path):
+@pytest.fixture
+def driver():
     chrome_options = Options()
-    chrome_options.binary_location = chrome_portable_path
-    
+    chrome_options.binary_location = CHROME_PORTABLE_PATH
+    chrome_options.add_argument("--incognito")
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--no-default-browser-check")
+
     prefs = {
         "profile.password_manager_enabled": False,
         "credentials_enable_service": False
     }
     chrome_options.add_experimental_option("prefs", prefs)
-    chrome_options.add_argument("--incognito")
-    chrome_options.add_argument("--disable-extensions")
-    chrome_options.add_argument("--no-default-browser-check")
 
-    service = Service(chromedriver_path)
+    service = Service(CHROME_DRIVER_PATH)
     driver = webdriver.Chrome(service=service, options=chrome_options)
     driver.maximize_window()
-    return driver
-
-
-def CloseChrome(driver):
+    yield driver
     driver.quit()
 
-
 # -----------------------------
-# Fonction de login
+# Fonctions utilitaires
 # -----------------------------
 def login(driver, login_data, url):
     driver.get(url)
@@ -54,59 +51,30 @@ def login(driver, login_data, url):
     driver.find_element(By.ID, "password").send_keys(login_data["password"])
     driver.find_element(By.ID, "login-button").click()
 
-
-# -----------------------------
-# Récupérer le message d'erreur
-# -----------------------------
 def get_error_message(driver):
     error_elem = WebDriverWait(driver, 5).until(
         EC.visibility_of_element_located((By.CSS_SELECTOR, "h3[data-test='error']"))
     )
     return error_elem.text
 
-
-# -----------------------------
-# Fermer le message d'erreur
-# -----------------------------
 def close_error(driver):
     driver.find_element(By.CLASS_NAME, "error-button").click()
-    time.sleep(1)  # attendre la fermeture
-
+    time.sleep(1)
 
 # -----------------------------
-# Script principal
+# Tests pytest
 # -----------------------------
-def main():
-    driver = OpenChrome(CHROME_DRIVER_PATH, CHROME_PORTABLE_PATH)
-    try:
-        url = data["url"]
+def test_invalid_user(driver):
+    login(driver, data["login_invalid"], data["url"])
+    assert get_error_message(driver) == data["error_messages"]["invalid"]
+    close_error(driver)
 
-        # 1️⃣ Test utilisateur invalide
-        login(driver, data["login_invalid"], url)
-        assert get_error_message(driver) == data["error_messages"]["invalid"]
-        print("Test utilisateur invalide OK")
-        close_error(driver)
+def test_no_username(driver):
+    login(driver, data["login_no_username"], data["url"])
+    assert get_error_message(driver) == data["error_messages"]["username_required"]
+    close_error(driver)
 
-        # 2️⃣ Test username vide
-        login(driver, data["login_no_username"], url)
-        assert get_error_message(driver) == data["error_messages"]["username_required"]
-        print("Test username requis OK")
-        close_error(driver)
-
-        # 3️⃣ Test password vide
-        login(driver, data["login_no_password"], url)
-        assert get_error_message(driver) == data["error_messages"]["password_required"]
-        print("Test password requis OK")
-        close_error(driver)
-
-        print("Tous les tests de connexion échouée ont réussi!")
-
-    except AssertionError as e:
-        print("Test échoué :", e)
-
-    finally:
-        CloseChrome(driver)
-
-
-if __name__ == "__main__":
-    main()
+def test_no_password(driver):
+    login(driver, data["login_no_password"], data["url"])
+    assert get_error_message(driver) == data["error_messages"]["password_required"]
+    close_error(driver)
