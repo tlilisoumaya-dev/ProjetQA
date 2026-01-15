@@ -27,13 +27,13 @@ pipeline {
 
     post {
         always {
-            echo '🎉 Pipeline terminée'
+            echo 'Pipeline terminée'
         }
         success {
-            echo '✅ Tous les tests ont réussi'
+            echo 'Tous les tests ont réussi'
         }
         failure {
-            echo '❌ Certains tests ont échoué'
+            echo 'Certains tests ont échoué'
         }
     }
 }
