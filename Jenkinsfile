@@ -13,14 +13,14 @@ pipeline {
         stage('Test Login Echoué') {
             steps {
                 echo '🔹 Exécution du test de connexion échouée...'
-                bat 'python testConnexion.py'
+                bat 'C:\\Users\\tlili\\AppData\\Local\\Programs\\Python\\Python314\\python.exe testConnexion.py'
             }
         }
 
         stage('Test Produits') {
             steps {
                 echo '🔹 Exécution du test des produits...'
-                bat 'python SecondTestSelenium.py'
+                bat 'C:\\Users\\tlili\\AppData\\Local\\Programs\\Python\\Python314\\python.exe SecondTestSelenium.py'
             }
         }
     }
